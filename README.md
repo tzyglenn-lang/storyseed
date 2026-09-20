@@ -32,5 +32,5 @@ StorySeed is a simple local AI story generator powered by Tether's QVAC SDK. Ent
 Clone the repository:
 
 ```bash
-git clone YOUR_REPOSITORY_URL
+git clone https://github.com/tzyglenn-lang/storyseed.git
 cd storyseed
