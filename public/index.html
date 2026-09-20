@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StorySeed</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7f2;
+      color: #243024;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .header h1 {
+      font-size: 42px;
+      margin: 0 0 8px;
+    }
+
+    .header p {
+      color: #687268;
+      font-size: 18px;
+      margin: 0;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      margin-bottom: 25px;
+    }
+
+    .card h2 {
+      margin-top: 0;
+    }
+
+    .inputs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ccd3ca;
+      border-radius: 10px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #5d7a5d;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #405d40;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #334c33;
+    }
+
+    button:disabled {
+      background: #9da69d;
+      cursor: not-allowed;
+    }
+
+    #status {
+      text-align: center;
+      margin-top: 15px;
+      color: #687268;
+      min-height: 20px;
+    }
+
+    #story {
+      white-space: pre-wrap;
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .story-title {
+      font-size: 25px;
+      font-weight: bold;
+      margin-bottom: 18px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      .inputs {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 34px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="header">
+      <h1>🌱 StorySeed</h1>
+      <p>Plant 3 words. Grow a story.</p>
+    </div>
+
+    <div class="card">
+      <h2>Plant your seeds</h2>
+
+      <div class="inputs">
+        <input id="word1" type="text" placeholder="First word">
+        <input id="word2" type="text" placeholder="Second word">
+        <input id="word3" type="text" placeholder="Third word">
+      </div>
+
+      <button id="generateBtn">🌱 Grow My Story</button>
+
+      <div id="status"></div>
+    </div>
+
+    <div id="storyCard" class="card hidden">
+      <div class="story-title">📖 Your Story</div>
+      <div id="story"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const button = document.getElementById("generateBtn");
+    const status = document.getElementById("status");
+    const storyCard = document.getElementById("storyCard");
+    const story = document.getElementById("story");
+
+    button.addEventListener("click", async () => {
+
+      const words = [
+        document.getElementById("word1").value.trim(),
+        document.getElementById("word2").value.trim(),
+        document.getElementById("word3").value.trim()
+      ];
+
+      if (words.some(word => word === "")) {
+        status.textContent = "Please enter all 3 words.";
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = "🌱 Growing your story...";
+      status.textContent = "QVAC is creating your story...";
+      storyCard.classList.add("hidden");
+
+      try {
+        const response = await fetch("/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ words })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Something went wrong.");
+        }
+
+        story.textContent = data.story;
+        storyCard.classList.remove("hidden");
+        status.textContent = "Your story is ready!";
+
+      } catch (error) {
+        status.textContent = "Error: " + error.message;
+
+      } finally {
+        button.disabled = false;
+        button.textContent = "🌱 Grow My Story";
+      }
+    });
+  </script>
+
+</body>
+</html>
